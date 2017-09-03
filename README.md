@@ -31,7 +31,7 @@ Run the following commands:
     - Create a file named `VisionServer.service`
 3. `nano VisionServer.service`
     - Edit `VisionServer.service`
-4. Copy the contents from [VisionServer.service](#visionserver.service)
+4. Copy the contents from [VisionServer.service](#visionserverservice)
 5. Press `CTRL` + `x`
     - Attempt to exit `nano`
 6. Press `y`
