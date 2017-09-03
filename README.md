@@ -20,6 +20,49 @@ You may need to run a Network Table server locally using [OutlineViewer](https:/
 
 Final command should look like `./gradlew run -PbuildType=linux -PntServer=192.168.0.100`.
 
+## Setup Raspberry Pi for deployment
+
+Run the following commands:
+
+1. `ssh pi@<PIHOST>`
+    - Login to the raspberry pi
+    - Replace `<PIHOST>` with the Raspberry Pi's IP-Address or HostName
+2. `touch VisionServer.service`
+    - Create a file named `VisionServer.service`
+3. `nano VisionServer.service`
+    - Edit `VisionServer.service`
+4. Copy the contents from [VisionServer.service](#visionserver.service)
+5. Press `CTRL` + `x`
+    - Attempt to exit `nano`
+6. Press `y`
+    - To write changes to the file
+7. Press `ENTER`
+    - To commit the change
+8. `sudo ln -s /home/pi/VisionServer.service /etc/systemd/system/.`
+    - Links `VisionServer.service` to the appropriate folder for `systemd` to see
+9. `sudo systemctl daemon-reload`
+    - Reload `systemd` to see the new file
+10. `sudo systemctl enable VisionServer.service`
+    - Enable `VisionServer` on system boot
+
+> Service will not run correctly yet as we have not deployed anything to the Pi
+
+### VisionServer.service
+
+```ini
+[Unit]
+Description=Vision Processing
+Requires=network-online.target
+
+[Service]
+ExecStart=/home/pi/VisionServer/bin/VisionServer
+
+[Install]
+WantedBy=multi-user.target
+Alias=VisionServer
+```
+
+
 ## How to deploy to the Raspberry Pi
 
 Currently, there is no `deployPi` task that would do all the magic so things need to be done manually. Maybe in the near future we can add that.
@@ -34,11 +77,16 @@ Run the following commands:
     - Replace `<PIHOST>` with the Raspberry Pi's IP-Address or HostName
 3. `ssh pi@<PIHOST>`
     - Login to the raspberry pi
-4. `unzip VisionServer-<VERSION>.zip`
+4. `sudo systemctl stop VisionServer`
+    - Stop the currently running server if there is one
+5. `unzip VisionServer-<VERSION>.zip`
     - Decompress the package
-5. `./VisionServer-<VERSION>/bin/VisionServer`
-    - Run Vision Server
-    - This will not keep running when you disconnect from the raspberry pi
+6. `ln -sf VisionServer-<VERSION> VisionServer`
+    - Link the new VisionServer to where our service can see it
+7. `sudo systemctl start VisionServer`
+    - Start the server back up
+
+> If `<VERSION>` was not changed then step six is not needed but it would not hurt it.
 
 ## Build Types
 
@@ -52,5 +100,4 @@ Run the following commands:
 
 ## TODO
 
-- [ ] Have a way to Stop/Replace/Start the Server for deployment ([systemd](https://learn.adafruit.com/running-programs-automatically-on-your-tiny-computer/systemd-writing-and-enabling-a-service))
 - [ ] Create a task to deploy to the Raspberry Pi
