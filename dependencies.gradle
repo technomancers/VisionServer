@@ -1,0 +1,47 @@
+ext.ntcoreDep = { ->
+    def classifier
+    if (buildType == "windows") {
+        classifier = "windows2015"
+    } else if (buildType == "armhf" || buildType == "arm-raspbian" || buildType == "arm") {
+        classifier = buildType
+    } else {
+        classifier = "desktop"
+    }
+    return "edu.wpi.first.wpilib.networktables.java:NetworkTables:$networktable_verion:$classifier"
+}
+
+ext.cscoreDep = { ->
+    def classifier
+    if (buildType == "windows") {
+        classifier = "windows2015"
+    } else {
+        classifier = buildType
+    }
+    return "edu.wpi.cscore.java:cscore:$cscore_version:$classifier"
+}
+
+ext.opencvJNIDep = { ->
+    def classifier
+    if (buildType == "windows") {
+        if (System.getProperty("os.arch") == "amd64") {
+            classifier =  "windows-x86_64"
+        } else {
+            classifier =  "windows-x86"
+        }
+    } else if (buildType == "linux") {
+        if (System.getProperty("os.arch") == "amd64") {
+            classifier =  "linux-x86_64"
+        } else {
+            classifier =  "linux-x86"
+        }
+    }else if (buildType == "arm") {
+        classifier =  "linux-arm"
+    } else if (buildType == "armhf") {
+        classifier =  "linux-armhf"
+    } else if (buildType == "arm-raspbian") {
+        classifier =  "linux-arm-raspbian"
+    } else {
+        classifier =  buildType
+    }
+    return "org.opencv:opencv-jni:$opencv_version:$classifier@jar"
+}

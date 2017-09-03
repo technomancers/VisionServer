@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/VisionServer.iml" filepath="$PROJECT_DIR$/.idea/modules/VisionServer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/VisionServer_main.iml" filepath="$PROJECT_DIR$/.idea/modules/VisionServer_main.iml" group="VisionServer" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/VisionServer_test.iml" filepath="$PROJECT_DIR$/.idea/modules/VisionServer_test.iml" group="VisionServer" />
+    </modules>
+  </component>
+</project>
