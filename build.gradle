@@ -100,6 +100,8 @@ applicationDistribution.from(extractNative) {
     into 'native/'
 }
 
+applicationDistribution.from("$rootDir/LICENSE")
+
 distZip.dependsOn extractNative
 distTar.dependsOn extractNative
 run.dependsOn extractNative
