@@ -62,31 +62,32 @@ WantedBy=multi-user.target
 Alias=VisionServer
 ```
 
+## Setup Your Machine for deployment
+
+Run the following commands (in the root directory of the project):
+
+1. `ssh-keygen -b 2048 -t rsa -f ./ssh/id_rsa`
+    - Create a new rsa key pair
+2. When asked for a passphrase just press `ENTER`. We do not want to set a password on these keys.
+3. `ssh-copy-id -i ./ssh/id_rsa <PIUSER>@<PIHOST>`
+    - Tell the pi about our new key. Will need to input the users password to upload to it.
+    - `<PIUSER>` is usually `pi` but set it to your regular user that you use on the pi.
+    - `<PIHOST>` this needs to be either the IP-Address or HostName of the raspberry pi.
 
 ## How to deploy to the Raspberry Pi
 
-Currently, there is no `deployPi` task that would do all the magic so things need to be done manually. Maybe in the near future we can add that.
+Run the following command:
 
-Run the following commands:
+1. `./gradlew deploy`
 
-1. `./gradlew distZip`
-    - Creates a zip file of all the necessary files and libraries
-2. `scp build/distributions/VisionServer-<VERSION>.zip pi@<PIHOST>:~/.`
-    - This will copy the created zip to the raspberry pi in the pi users home directory
-    - Replace `<VERSION>` with the version found in `build.gradle`
-    - Replace `<PIHOST>` with the Raspberry Pi's IP-Address or HostName
-3. `ssh pi@<PIHOST>`
-    - Login to the raspberry pi
-4. `sudo systemctl stop VisionServer`
-    - Stop the currently running server if there is one
-5. `unzip VisionServer-<VERSION>.zip`
-    - Decompress the package
-6. `ln -sf VisionServer-<VERSION> VisionServer`
-    - Link the new VisionServer to where our service can see it
-7. `sudo systemctl start VisionServer`
-    - Start the server back up
+There are optional parameters you can pass in if the pi is not on host name `technopi.local`or has a user `pi`.
 
-> If `<VERSION>` was not changed then step six is not needed but it would not hurt it.
+- `-PpiHost=<PIHOST>` - replace `<PIHOST>` with the HostName or IP-Address of the pi you want to deploy to.
+    - Example `./gradlew deploy -PpiHost willspi.local`
+- `-PpiUser=<PIUSER>` - replace `<PIUSER>` with the username used to get onto the pi.
+    - Example `./gradlew deploy -PpiUser pi`
+
+> The above options can be combined
 
 ## Build Types
 
@@ -97,7 +98,3 @@ Run the following commands:
 | `arm-raspbian` | Used specifically to run/build for the Rasberry Pi|
 | `arm` | **Not Tested** Used to run/build for other Arm devices |
 | `armhf` | **Not Tested** Used to run/build for Armhf devices (Beaglebone Black or Jetson) |
-
-## TODO
-
-- [ ] Create a task to deploy to the Raspberry Pi
