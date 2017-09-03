@@ -94,6 +94,7 @@ jar {
 }
 
 applicationDefaultJvmArgs.push('-Djava.library.path=MY_APP_HOME/native')
+
 if (project.hasProperty("ntServer")) {
     applicationDefaultJvmArgs.push("-Dnetworktable.server=${ntServer}")
 }
@@ -144,7 +145,7 @@ task deploy {
         ssh.run {
             session(remotes.pi) {
                 put from: f, into: "."
-                execute "sudo systemctl stop VisionServer && unzip ${f.name} && ln -sf $fName VisionServer && sudo systemctl start VisionServer"
+                execute "sudo systemctl stop VisionServer && unzip -o ${f.name} && ln -sf $fName VisionServer && sudo systemctl start VisionServer"
             }
         }
     }
