@@ -1,5 +1,6 @@
 buildscript{
     ext.kotlin_version = "1.1.4-3"
+    ext.ssh_version = "2.9.0"
     repositories {
         maven {
             url "https://plugins.gradle.org/m2"
@@ -7,6 +8,7 @@ buildscript{
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
+        classpath "org.hidetake:gradle-ssh-plugin:${ssh_version}"
     }
 }
 
@@ -41,13 +43,20 @@ use -PntServer=
 For debugging purposes please specify which server a Network Tables server is on.
  */
 
-
-def projectName = 'VisionServer'
 if (!project.hasProperty("buildType")) {
     ext.buildType = "arm-raspbian"
 }
 
+if (!project.hasProperty("piHost")) {
+    ext.piHost = "technopi.local"
+}
+
+if (!project.hasProperty("piUser")) {
+    ext.piUser = "pi"
+}
+
 apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'org.hidetake.ssh'
 apply plugin: 'application'
 
 compileKotlin {
@@ -81,12 +90,21 @@ dependencies {
 mainClassName = 'edu.frc.technomancers.VisionServer.MainKt'
 
 jar {
-    baseName = projectName
+    baseName = rootProject.name
 }
 
 applicationDefaultJvmArgs.push('-Djava.library.path=MY_APP_HOME/native')
 if (project.hasProperty("ntServer")) {
     applicationDefaultJvmArgs.push("-Dnetworktable.server=${ntServer}")
+}
+
+remotes {
+    pi {
+        host = piHost
+        user = piUser
+        identity = file("$rootDir/ssh/id_rsa")
+        knownHosts = allowAnyHosts
+    }
 }
 
 task extractNative(type: Copy) {
@@ -118,3 +136,19 @@ startScripts {
         windowsScript.text = windowsScript.text.replace('MY_APP_HOME', '%APP_HOME%')
     }
 }
+
+task deploy {
+    doLast {
+        def f = files(distZip).first()
+        def fName = f.name.take(f.name.lastIndexOf('.'))
+        ssh.run {
+            session(remotes.pi) {
+                put from: f, into: "."
+                execute "sudo systemctl stop VisionServer && unzip ${f.name} && ln -sf $fName VisionServer && sudo systemctl start VisionServer"
+            }
+        }
+    }
+}
+
+deploy.group = "distribution"
+deploy.dependsOn distZip
